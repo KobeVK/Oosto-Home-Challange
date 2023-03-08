@@ -10,11 +10,24 @@ dslJob.with {
     logRotator {
         numToKeep(10)
     }
-
     definition {
         cpsScm {
-            commonPipelineScm(context, '${PIPELINE_BRANCH}', build_url)
-                scriptPath('Jenkinsfile')
+            scm {
+                git {
+                    branch('master')
+                    remote {
+                        url('https://github.com/KobeVK/Oosto-Home-Challange.git')
+                        credentials('github')
+                    }
+                    extensions {
+                        cloneOptions {
+                        shallow true
+                        noTags true
+                        }
+                    }
+                }
+            }
+        scriptPath('Jenkinsfile')
         }
     }
 }
