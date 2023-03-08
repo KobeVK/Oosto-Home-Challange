@@ -4,7 +4,7 @@ def dslJob = pipelineJob(jobName)
 
 dslJob.with {
     parameters {
-        booleanParam(name: 'deploy_new_env', defaultValue: false, description: 'True/False')
+        booleanParam(name: "deploy_new_env", defaultValue: false, description: "True/False")
     }
 
     logRotator {
