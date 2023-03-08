@@ -4,7 +4,7 @@ def dslJob = pipelineJob(jobName)
 
 dslJob.with {
     parameters {
-        booleanParam('deploy_new_env', false, '<font size=2 color=blue>Check this option to install the extension with release versions (true), or install dev version only(false)</font>')
+        booleanParam('deploy_new_env', false, '<font size=2 color=blue>Set to True if you wish to create new cluster on EC2, otherwise, app will be deployed on existing envoirnemt(staging) </font>')
     }
 
     logRotator {
