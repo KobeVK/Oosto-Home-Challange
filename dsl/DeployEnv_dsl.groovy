@@ -4,7 +4,7 @@ def dslJob = pipelineJob(jobName)
 
 dslJob.with {
     parameters {
-        booleanParam(name: "deploy_new_env", defaultValue: false, description: "True/False")
+        booleanParam('deploy_new_env', false, '<font size=2 color=blue>Check this option to install the extension with release versions (true), or install dev version only(false)</font>')
     }
 
     logRotator {
