@@ -10,7 +10,7 @@
 
 Notes:
 flag to redeploy a new cluster - if not, just perform ansible playbooks
-
+I’m going with K3s because it seems to have the largest community, it’s CNCF-certified, and it’s lightweight (~60MB binary).
 
 # steps:
 ### -- installing Jenkins --

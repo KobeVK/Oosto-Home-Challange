@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-page
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-page
+  template:
+    metadata:
+      labels:
+        app: web-page
+    spec:
+      containers:
+        - name: web-page
+          image: <your-container-registry>/web-page:latest
+          ports:
+            - containerPort: 80

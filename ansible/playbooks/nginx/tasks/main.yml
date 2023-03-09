@@ -1,0 +1,26 @@
+---
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Configure Nginx
+  template:
+    src: templates/nginx.conf.j2
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: 0644
+  notify: Reload Nginx
+
+- name: Enable Nginx
+  file:
+    src: /etc/nginx/sites-available/default
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+    force: yes
+
+- name: Reload Nginx
+  service:
+    name: nginx
+    state: reloaded

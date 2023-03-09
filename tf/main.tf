@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-west-2" # can change to be acquired from aws-cli #TODO: feature work
+  region = "eu-west-3" # can change to be acquired from aws-cli #TODO: feature work
 }
 
 resource "aws_security_group" "k3s_security_group" {

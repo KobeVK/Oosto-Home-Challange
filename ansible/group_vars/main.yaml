@@ -1,0 +1,27 @@
+---
+
+k8s_engine: k3s
+
+# image_pull_secret: aws-login-credentials
+
+# k8s namespaces
+app_namespace: thecombine
+
+k8s_user: ubuntu
+k8s_group: ubuntu
+
+#######################################
+# # Ingress configuration
+# ingress_namespace: ingress-nginx
+
+# # For the NUCs we want to use the ansible host name
+# # since that is how we can connect on the local network
+# # The server name will direct traffic to the production
+# # server since it is used to get the certificates for the
+# # NUC.
+# k8s_dns_name: "{{ ansible_hostname }}"
+
+################################################
+# Ethernet settings
+################################################
+eth_optional: yes

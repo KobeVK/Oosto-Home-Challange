@@ -1,0 +1,26 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        upgrade: dist
+        force_apt_get: yes
+    - name: Install prerequisites
+      apt:
+        name: "{{ package }}"
+      vars:
+        package:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - python3
+          - python3-pip
+          - curl
+        update_cache: yes
+        force_apt_get: yes
+- import_playbook: playbooks/docker/docker.yml
+- import_playbook: playbooks/k3s/k3s.yml
