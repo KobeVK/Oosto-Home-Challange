@@ -46,7 +46,7 @@ pipeline {
 			}
 		}
 
-		stage('build') {	
+		stage('verify hosts are reachable') {	
 			when {
                 expression {
                     params.REBUILD_CLUSTER != "1"
