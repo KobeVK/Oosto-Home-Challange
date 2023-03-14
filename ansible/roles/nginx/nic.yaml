@@ -12,9 +12,15 @@
       with_dict:
         ingress-nginx: https://kubernetes.github.io/ingress-nginx
 
-    - name: create ingress-nginx namespace
-      kubernetes.core.k8s:
-        api_version: v1
-        kind: Namespace
+    # - name: create ingress-nginx namespace
+    #   kubernetes.core.k8s:
+    #     api_version: v1
+    #     kind: Namespace
+    #     name: ingress-nginx
+    #     state: present
+    - name: Create ingress-nginx namespace
+      kubernetes.core.v1.namespace:
         name: ingress-nginx
         state: present
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
