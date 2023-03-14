@@ -14,7 +14,7 @@ dslJob.with {
         cpsScm {
             scm {
                 git {
-                    branch('master')
+                    branch('main')
                     remote {
                         url('https://github.com/KobeVK/Oosto-Home-Challange.git')
                         credentials('github')

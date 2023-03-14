@@ -46,16 +46,16 @@ pipeline {
 			}
 		}
 
-		stage('Verify hosts are up') {
+		stage('build') {	
 			when {
                 expression {
                     params.REBUILD_CLUSTER != "1"
                 }
 			steps {
-				script {
-					properties([
+				script{
+					sh """
 						ansible all -m ping
-					])
+					"""
 				}
 			}
 		}
