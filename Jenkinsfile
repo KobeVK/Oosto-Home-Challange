@@ -3,7 +3,7 @@
 def ENVIRONMENT = ""
 def buildNumber = env.BUILD_NUMBER as int
 def mailTo = 'skvaknin@gmail.com'
-def stagingIP = "15.237.160.86"
+def stagingIP = "52.47.111.150"
 
 pipeline {
 	agent any
