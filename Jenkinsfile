@@ -63,14 +63,14 @@ pipeline {
 
 		stage('build') {
             steps {
-					script {
-                        if ( params.REBUILD_CLUSTER == "1" ){
-                            deployNewEnv()
-					    }
-                        else {
-                            deployExistingEnv()
-                        }
-                    }
+				script {
+					if ( params.REBUILD_CLUSTER == "1" ){
+						deployNewEnv()
+					}
+					else {
+						deployExistingEnv()
+					}
+				}
 			}
 		}
 	}
@@ -80,7 +80,7 @@ pipeline {
 
 def deployExistingEnv() {
 	sh """
-		echo "Starting Deploying app on "Staging": existing aws instance ""
+		echo "Starting Deploying app on "Staging": existing aws instance "
 		echo "This will install k3s cluster, and deploy a webpage behind an nginx on pod, and display string as a massage"
 		ansible-playbook ansible/playbook.yaml -e "app_string=kobkob"
 	"""
