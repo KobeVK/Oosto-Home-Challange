@@ -3,6 +3,7 @@
 def ENVIRONMENT = ""
 def buildNumber = env.BUILD_NUMBER as int
 def mailTo = 'skvaknin@gmail.com'
+def stagingIP = "15.237.160.86"
 
 pipeline {
 	agent any
@@ -46,6 +47,10 @@ pipeline {
 		}
 
 		stage('Verify hosts are up') {
+			when {
+                expression {
+                    params.REBUILD_CLUSTER != "1"
+                }
 			steps {
 				script {
 					properties([
@@ -85,26 +90,26 @@ pipeline {
 		//     }	
 		// }
 
-		stage('Release') {
-			steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
-					script{
-						sh """
-							sed -i 's/hosts: all/hosts: ${env.IP}/' release_docker_playbook.yml > /dev/null 1>&2
-						"""
-					}
-					ansiblePlaybook(
-						playbook: 'release_docker_playbook.yml',
-						extraVars: [
-							usr: "${USERNAME}",
-							pass: "${PASSWORD}",
-							buildNumber: "${buildNumber}",
-							envioronment: "${env.ENVIRONMENT}"
-						]
-					)
-				}
-			}
-		}
+		// stage('Release') {
+		// 	steps {
+        //         withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
+		// 			script{
+		// 				sh """
+		// 					sed -i 's/hosts: all/hosts: ${env.IP}/' release_docker_playbook.yml > /dev/null 1>&2
+		// 				"""
+		// 			}
+		// 			ansiblePlaybook(
+		// 				playbook: 'release_docker_playbook.yml',
+		// 				extraVars: [
+		// 					usr: "${USERNAME}",
+		// 					pass: "${PASSWORD}",
+		// 					buildNumber: "${buildNumber}",
+		// 					envioronment: "${env.ENVIRONMENT}"
+		// 				]
+		// 			)
+		// 		}
+		// 	}
+		// }
 	}
 }
 
@@ -120,9 +125,9 @@ pipeline {
 
 def deployExistingEnv() {
 	sh """
-		echo "Starting Deploying app on existing AWS instance init"
+		echo "Starting Deploying app on "Staging": existing aws instance ""
 		echo "This will install k3s cluster, and deploy a webpage behind an nginx on pod, and display string as a massage"
-		ansible-playbook 
+		ansible-playbook ansible/playbook.yaml -e "app_string=kobkob"
 	"""
 }
 
