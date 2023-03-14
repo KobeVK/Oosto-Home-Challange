@@ -10,6 +10,7 @@
     - name: Install prerequisites
       apt:
         name: "{{ package }}"
+      update_cache: yes
       vars:
         package:
           - apt-transport-https
