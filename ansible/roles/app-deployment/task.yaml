@@ -1,0 +1,18 @@
+---
+- hosts: all
+  become: true
+  vars:
+    app_text: "kobi" # set a default value
+  tasks:
+    - name: Get the value of the argument from the command line
+      set_fact:
+        app_text: "{{ ansible_playbook_python | default(ansible_python_interpreter) }} {{ playbook_dir }}/playbook.yml -e"
+      register: arg_value
+      ignore_errors: true
+
+    - name: Create a Deployment from a YAML file
+      kubernetes.core.k8s:
+        definition: "{{ lookup('file', 'app.yaml') }}"
+        state: present
+        namespace: default
+        wait: yes

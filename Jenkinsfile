@@ -45,66 +45,34 @@ pipeline {
 			}
 		}
 
-		stage('Deployment') {
-            when {
-                expression {REBUILD_CLUSTER != "0"}
-            }	
+		stage('Verify hosts are up') {
+			steps {
+				script {
+					properties([
+						ansible all -m ping
+					])
+				}
+			}
+		}
+
+		stage('build') {
             steps {
-                withAWS(credentials: 'aws-access-key') {
 					script {
                         if ( params.REBUILD_CLUSTER == "1" ){
                             deployNewEnv()
 					    }
                         else {
-                            // deployExistingEnv()
+                            deployExistingEnv()
                         }
                     }
-
-				}
 			}
 		}
-
-		// stage('Verify') {	
-		// 	steps {
-		// 		withCredentials([sshUserPrivateKey(credentialsId: "aws", keyFileVariable: 'KEY')]) {
-		// 			script{
-		// 				access_ip = sh (
-		// 					script: """
-		// 						terraform output -raw web_app_access_ip
-		// 					""", returnStdout: true
-		// 				).trim()
-		// 				env.IP = access_ip
-		// 				println "the machine terraform created is  = " + access_ip
-		// 				sh """
-		// 					sudo -- sh -c "sed 's/.*ssh-rsa/${access_ip} ssh-rsa/' /home/ubuntu/.ssh/known_hosts > /dev/null"
-		// 					sudo -- sh -c "echo ${access_ip} | sudo tee -a /home/ubuntu/Versatile/hosts > /dev/null "
-		// 					sleep 60 
-		// 					ansible ${access_ip} -m ping --private-key=$KEY
-		// 				"""
-		// 			}
-		// 		}
-		// 	}
-		// }
-		
-		// stage('install') {	
-		// 	steps {
-		// 		withCredentials([sshUserPrivateKey(credentialsId: "aws", keyFileVariable: 'KEY')]) {
-		// 			script{
-		// 				sh """
-		// 					sed -i 's/hosts: all/hosts: ${env.IP}/' deploy_app_playbook.yml > /dev/null 1>&2
-		// 					ansible-playbook deploy_app_playbook.yml
-		// 					echo "your deployed web-app can be access here -> http://${env.IP}:8000"
-		// 				"""
-		// 			}
-		// 		}
-		// 	}
-		// }
 
 		// stage('test') {
 		// 	steps {
 		// 		script{
 		// 			sh """
-        //             	bash ./tests/health_check.sh ${env.IP}
+        //             	kubectl describe service apple-service | grep Endpoints | awk '{print $2}'
         //         	"""
 		// 		}
 		// 	}
@@ -117,61 +85,44 @@ pipeline {
 		//     }	
 		// }
 
-		// stage('Release') {
-		// 	steps {
-        //         withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
-		// 			script{
-		// 				sh """
-		// 					sed -i 's/hosts: all/hosts: ${env.IP}/' release_docker_playbook.yml > /dev/null 1>&2
-		// 				"""
-		// 			}
-		// 			ansiblePlaybook(
-		// 				playbook: 'release_docker_playbook.yml',
-		// 				extraVars: [
-		// 					usr: "${USERNAME}",
-		// 					pass: "${PASSWORD}",
-		// 					buildNumber: "${buildNumber}",
-		// 					envioronment: "${env.ENVIRONMENT}"
-		// 				]
-		// 			)
-		// 		}
-		// 	}
-		// }
-
-		// stage('destroy image') {
-        //     when {
-        //         expression {
-        //             branch != "main"
-        //         }
-        //     }
-		// 	steps {
-		// 		withCredentials([sshUserPrivateKey(credentialsId: "aws", keyFileVariable: 'KEY')]) {
-		// 			script{
-		// 				destroyENV()
-		// 			}
-		// 		}
-		// 	}
-		// }
+		stage('Release') {
+			steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]){
+					script{
+						sh """
+							sed -i 's/hosts: all/hosts: ${env.IP}/' release_docker_playbook.yml > /dev/null 1>&2
+						"""
+					}
+					ansiblePlaybook(
+						playbook: 'release_docker_playbook.yml',
+						extraVars: [
+							usr: "${USERNAME}",
+							pass: "${PASSWORD}",
+							buildNumber: "${buildNumber}",
+							envioronment: "${env.ENVIRONMENT}"
+						]
+					)
+				}
+			}
+		}
 	}
 }
 
-def deployNewEnv() {
-	def buildNumber = env.BUILD_NUMBER
-	sh """
-		echo "Starting Terraform init"
-		terraform init /path/to/your/terraform/file.tf
-		// terraform plan -out myplan -var="environment=${env.ENVIRONMENT}" -var="id=${buildNumber}"  
-		// terraform apply -auto-approve -var="environment=${env.ENVIRONMENT}" -var="id=${buildNumber}"
-	"""
-}
+// def deployNewEnv() {
+// 	def buildNumber = env.BUILD_NUMBER
+// 	sh """
+// 		echo "Starting Terraform init"
+// 		terraform init /path/to/your/terraform/file.tf
+// 		// terraform plan -out myplan -var="environment=${env.ENVIRONMENT}" -var="id=${buildNumber}"  
+// 		// terraform apply -auto-approve -var="environment=${env.ENVIRONMENT}" -var="id=${buildNumber}"
+// 	"""
+// }
 
-def deployNewEnv() {
-	def buildNumber = env.BUILD_NUMBER
+def deployExistingEnv() {
 	sh """
-		echo "Starting Terraform init"
-		terraform init
-		// terraform plan -out myplan -var="environment=${env.ENVIRONMENT}" -var="id=${buildNumber}"  
-		// terraform apply -auto-approve -var="environment=${env.ENVIRONMENT}" -var="id=${buildNumber}"
+		echo "Starting Deploying app on existing AWS instance init"
+		echo "This will install k3s cluster, and deploy a webpage behind an nginx on pod, and display string as a massage"
+		ansible-playbook 
 	"""
 }
 

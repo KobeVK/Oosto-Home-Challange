@@ -1,9 +1,15 @@
+---
 - hosts: all
   become: true
   tasks:
     - name: Ensure unofficial docker is not installed
-      apt:
-        name: "{{ package }}"
+      package:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
         state: absent
       vars:
         package:
@@ -17,14 +23,20 @@
         url: https://download.docker.com/linux/ubuntu/gpg
         keyring: /usr/share/keyrings/docker-archive-keyring.gpg
     - name: Get dpkg architecture
-      command: dpkg --print-architecture
+      command:
+        cmd: dpkg --print-architecture
       register: dpkg_arch
     - name: Add Docker apt repository
       apt_repository:
+        filename: docker
         repo: deb [arch={{ dpkg_arch.stdout }} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu focal stable
+        state: present
     - name: Install official docker and containerd
-      apt:
-        name: "{{ package }}"
+      package:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
         update_cache: yes
       vars:
         package:
@@ -33,19 +45,20 @@
           - containerd.io
     - name: Ensure docker config directory is present
       file:
-        state: directory
         path: /etc/docker
-        mode: 0755
+        state: directory
+        mode: '0755'
     - name: Configure docker
       copy:
         dest: /etc/docker/daemon.json
-        src: files/docker-daemon.json
-        mode: 0644
+        src: docker-daemon.json
+        mode: '0644'
       notify: Restart docker
     - name: Enable docker
       systemd:
         name: docker
         enabled: yes
+        state: started
     - name: Add docker group
       user:
         name: "ubuntu"
@@ -54,6 +67,6 @@
 
   handlers:
     - name: Restart docker
-      service:
+      systemd:
         name: docker
         state: restarted

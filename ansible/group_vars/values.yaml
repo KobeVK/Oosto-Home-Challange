@@ -1,0 +1,14 @@
+---
+
+k8s_engine: k3s
+
+app_namespace: thecombine
+
+k8s_user: ubuntu
+k8s_group: ubuntu
+
+k3s_options:
+  - --write-kubeconfig-mode
+  - 644
+  - --disable
+  - traefik

@@ -1,4 +1,0 @@
-replicaCount: 1
-image:
-  repository: <your-container-registry>/web-page
-  tag: latest

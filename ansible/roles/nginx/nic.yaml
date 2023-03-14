@@ -1,0 +1,20 @@
+---
+- name: Install k3s on target hosts
+  become: true
+  hosts: all
+  # vars_files:
+  #   - ../../group_vars/values.yaml
+  tasks:
+    - name: Add helm repositories
+      kubernetes.core.helm_repository:
+        name: "{{ item.key }}"
+        repo_url: "{{ item.value }}"
+      with_dict:
+        ingress-nginx: https://kubernetes.github.io/ingress-nginx
+
+    - name: create ingress-nginx namespace
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: ingress-nginx
+        state: present

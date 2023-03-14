@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: print-app
+  labels:
+    app: print-app
+spec:
+  containers:
+    - name: print-app
+      image: hashicorp/http-echo
+      args:
+        - "-text={{ app_string }}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: print-app-service
+spec:
+  selector:
+    app: print-app
+  ports:
+    - port: 5678
+      targetPort: 5678
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: print-app-ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: "/"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /string
+            pathType: Prefix
+            backend:
+              service:
+                name: print-app-service
+                port:
+                  number: 5678

@@ -1,14 +1,14 @@
-FROM python:3.8-slim-buster
+FROM alpine:3.14.3
 
-RUN apt-get update && apt-get install -y nginx
+ARG MY_STRING
+ENV MY_STRING_ENV=$MY_STRING
 
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
-
-COPY app.py /app/app.py
-WORKDIR /app
+RUN apk update && \
+    apk add --no-cache nginx && \
+    echo "daemon off;" >> /etc/nginx/nginx.conf && \
+    sed -i "s/Welcome to nginx!/My string is: \$MY_STRING_ENV/g" /usr/share/nginx/html/index.html && \
+    chown -R nginx:nginx /var/lib/nginx
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx"]

@@ -1,4 +1,0 @@
-apiVersion: v2
-name: web-page
-description: A simple Python web page with Nginx
-version: 0.1.0

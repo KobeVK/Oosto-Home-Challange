@@ -22,5 +22,30 @@
           - curl
         update_cache: yes
         force_apt_get: yes
-- import_playbook: playbooks/docker/docker.yml
-- import_playbook: playbooks/k3s/k3s.yml
+    #Helm installation
+    - name: "Add Helm APT signing key"
+      ansible.builtin.apt_key:
+        url: https://baltocdn.com/helm/signing.asc
+        keyring: /usr/share/keyrings/helm-signing-key.gpg
+    - name: "Add Helm APT repository"
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64 signed-by=/usr/share/keyrings/helm-signing-key.gpg] https://baltocdn.com/helm/stable/debian/ all main
+        filename: helm
+    - name: "Install Helm"
+      apt:
+        pkg:
+        - helm
+    - name: Get the value of the argument from the command line
+      set_fact:
+        app_text: "{{ ansible_playbook_python | default(ansible_python_interpreter) }} {{ playbook_dir }}/playbook.yml -e"
+      register: arg_value
+      ignore_errors: true
+    - name: create directory with parent directories
+      file:
+        path: roles/nginx/
+        state: directory  
+
+- import_playbook: roles/docker/docker.yml
+- import_playbook: roles/k3s/k3s.yaml
+- import_playbook: roles/nginx/nic.yaml
+- import_playbook: roles/app-deployment/task.yaml

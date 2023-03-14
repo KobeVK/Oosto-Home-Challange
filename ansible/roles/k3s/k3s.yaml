@@ -1,0 +1,49 @@
+---
+- name: Install k3s on target hosts
+  become: true
+  hosts: all
+  vars_files:
+    - ../../group_vars/values.yaml
+  tasks:
+    - name: Install k3s
+      shell:
+        cmd: curl -sfL https://get.k3s.io | sh -s - {{ k3s_options | join(' ') }}
+        warn: no
+        creates: /usr/local/bin/k3s
+
+    - name: Patch k3s service
+      lineinfile:
+        path: /etc/systemd/system/k3s.service
+        regexp: "^KillMode="
+        line: "KillMode=mixed"
+      notify:
+        - Reload k3s
+
+    - name: Get home directory for root
+      shell: "getent passwd {{ k8s_user }} | awk -F: '{ print $6 }'"
+      register: k8s_user_home
+      changed_when: false
+
+    - name: Create .kube directories
+      file:
+        path: "{{ item.home }}/.kube"
+        state: directory
+        owner: "{{ item.owner }}"
+        group: "{{ item.group }}"
+        mode: "0700"
+      loop:
+        - home: "{{ k8s_user_home.stdout }}"
+          owner: "{{ k8s_user }}"
+          group: "{{ k8s_group }}"
+        - home: "/ubuntu"
+          owner: "ubuntu"
+          group: "ubuntu"
+
+    - name: Set link .kube/config to /etc/rancher/k3s/k3s.yaml
+      file:
+        src: "/etc/rancher/k3s/k3s.yaml"
+        path: "{{ item }}/.kube/config"
+        state: link
+      loop:
+        - "{{ k8s_user_home.stdout }}"
+        - "/ubuntu"
