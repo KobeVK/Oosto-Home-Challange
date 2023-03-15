@@ -17,7 +17,14 @@
     #     state: present
     #     namespace: default
     #     wait: yes
-
+    - name: Create service account
+      k8s:
+        api_version: v1
+        kind: ServiceAccount
+        metadata:
+          name: default
+          namespace: ingress-nginx
+          
     - name: Generate Kubernetes manifest from template
       ansible.builtin.template:
         src: templates/pod_template.yaml.j2
