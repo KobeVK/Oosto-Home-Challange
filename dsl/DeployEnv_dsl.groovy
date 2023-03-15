@@ -1,7 +1,7 @@
 jobName = "devpoy_env"
 
 def dslJob = pipelineJob(jobName)
-def stagingIP = "52.47.111.150"
+def stagingIP = "15.188.54.246"
 
 dslJob.with {
     parameters {
