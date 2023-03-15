@@ -5,15 +5,8 @@ def mailTo = "${params.mailTo}"
 def string_to_print = "${params.string_to_print}"
 def stagingIP = "${params.stagingIP}"
 
-
 pipeline {
 	agent any
-	parameters {
-		string(name: 'region', defaultValue: 'eu-west-3')
-		string(name: 'existing_enviornemt', defaultValue: stagingIP)
-		string(name: 'string', defaultValue: string_to_print)
-		
-	}
 
 	environment {
       branch = "${env.GIT_BRANCH}"
@@ -108,12 +101,11 @@ pipeline {
 	}
 }
 
-
 def deployExistingEnv(string) {
 	sh """
 		echo "Starting Deploying app on "Staging": existing aws instance "
 		echo "This will install k3s cluster, and deploy a webpage behind an nginx on pod, and display string as a massage"
-		ansible-playbook ansible/playbook.yaml -e "app_string=${string}"
+		ansible-playbook ansible/playbook.yaml -i ${stagingIP} -e "app_string=${string}"
 	"""
 }
 
