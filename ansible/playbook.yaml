@@ -20,6 +20,9 @@
           - python3
           - python3-pip
           - curl
+          - openshift
+          - kubernetes
+          - pyyaml
         update_cache: yes
         force_apt_get: yes
     # - name: Install roles from requirements.yml
