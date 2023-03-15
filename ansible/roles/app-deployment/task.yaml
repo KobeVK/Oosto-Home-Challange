@@ -10,12 +10,22 @@
       register: arg_value
       ignore_errors: true
 
-    - name: Create a Deployment from a YAML file
+    # - name: Create a Deployment from a YAML file
+    #   kubernetes.core.k8s:
+    #     kubeconfig: /etc/rancher/k3s/k3s.yaml
+    #     definition: "{{ lookup('file', 'app.yaml') }}"
+    #     state: present
+    #     namespace: default
+    #     wait: yes
+
+    - name: Generate Kubernetes manifest from template
+      ansible.builtin.template:
+        src: pod_template.yaml.j2
+        dest: pod_manifest.yaml
+      vars:
+        app_string: "{{ app_string }}"
+
+    - name: Apply Kubernetes manifest
       kubernetes.core.k8s:
         kubeconfig: /etc/rancher/k3s/k3s.yaml
-        definition: "{{ lookup('file', 'app.yaml') }}"
-        state: present
-        namespace: default
-        wait: yes
-        vars:
-          app_string: "{{ app_string }}"
+        src: pod_manifest.yaml
