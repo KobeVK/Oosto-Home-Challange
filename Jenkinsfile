@@ -79,6 +79,7 @@ pipeline {
 				script {
 					sh """
 						ansible-playbook ansible/verification.yaml
+						
 					"""
 				}
 			}
