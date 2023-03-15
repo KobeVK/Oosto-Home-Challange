@@ -1,38 +1,32 @@
 # Oosto-Home-Challange
 
-1. terraform will create a remote server with
-    will setup k3s cluster
 
+This Deployment pipeline is deploying a simple site behind an nginx proxy that knows to return a string from a specific url path
+The pipeline can get deploy the infrastructure in two ways, distinguished by a flag:
+1. REBUILD-CLUSTER=true
 
-    ansible will deploy nginx webserver eith helm chart
-    nginx should display custom massage which will be passed throght ansible variable
-    Example: “Hello World! I’m a Senior DevOps Engineer candidate @ Oosto!”
+    terraform will create a remote server on aws with the AWS modules
+    1. Will install all prerequisites
+    2. will setup k3s cluster
+    3. will setup helm + the nginx ingrees to take requests from the world (see attached architecture)
 
-Notes:
-flag to redeploy a new cluster - if not, just perform ansible playbooks
-I’m going with K3s because it seems to have the largest community, it’s CNCF-certified, and it’s lightweight (~60MB binary).
+2. REBUILD-CLUSTER=false
+    The deployment will made to an existing envoirnmet that was pre-configured (with public-private-keys-access)
 
-# steps:
-### -- installing Jenkins --
-    'sudo apt update'
-    'sudo apt install openjdk-11-jre -y'
-    'curl -fsSL https://pkg.jenkins.io/debian/jenkins.io.key | sudo tee \
-        /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-        echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-        https://pkg.jenkins.io/debian binary/ | sudo tee \
-        /etc/apt/sources.list.d/jenkins.list > /dev/null'
-    'sudo apt update'
-    'sudo apt-get install jenkins -y'
-    'sudo systemctl enable jenkins'
-    'sudo systemctl start jenkins'
-### -- install needed plugins -->
-    'Terraform'
-    'aws'
-    'Ansible'
-    'jobDSL'
-### -- install docker on remote instance -->
-    'sudo apt-get update && sudo apt-get install -y docker.io'
-    sudo usermod -aG docker ubuntu
-### -- install Terrafrom CLI on remote instance -->
-    'mkdir k3s-terraform'
-    'cd k3s-terraform'
+![Oosto web app CI/CD architecture](architecture.png)
+
+# steps I went through to accomplish this task:
+
+ 1. Designed an high-level architecture of the pipeline
+ 2. Designed a deatiled architecture of the pod-service-ingress mechanism
+ 1. installing Jenkins 
+ 1. install needed plugins --  'Terraform' | 'aws' | 'Ansible' |  'jobDSL' | 'SMTP'
+ 1. configured jenkins seed to get repo changes
+ 1. install prerequisites on the jenkins instance 
+ 1. configures access to all users (default / jenkins) 
+ 1. wrote the pipeline DSL / groovy  
+ 1. wrote the ansible roles / templates 
+ 1. wrote tests to verify i indeed gets the correct string in the pipeline 
+ 9 wrote tests to verify i indeed gets the correct string in the pipeline 
+ 1. wrote tests to verify i indeed gets the correct string in the pipeline 
+ 1. considering security - stricting the aws instance inbound rules, not to expose the ingress to the outside world
