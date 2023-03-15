@@ -1,10 +1,9 @@
 #!groovy
 
-def ENVIRONMENT = ""
 def buildNumber = env.BUILD_NUMBER as int
-def mailTo = 'skvaknin@gmail.com'
-def stagingIP = '13.39.86.252'
-def string_to_print = 'Hello World! I am a Senior DevOps Engineer candidate @ Oosto!'
+def mailTo = "${params.mailTo}"
+def string_to_print = "${params.string_to_print}"
+def stagingIP = "${params.stagingIP}"
 
 
 pipeline {
@@ -98,6 +97,13 @@ pipeline {
 					}
 				}
 			}
+			post{
+			    failure {
+				    script{
+					    sendEmail(mailTo)
+				    }
+			    }
+			}
 		}
 	}
 }
@@ -109,4 +115,12 @@ def deployExistingEnv(string) {
 		echo "This will install k3s cluster, and deploy a webpage behind an nginx on pod, and display string as a massage"
 		ansible-playbook ansible/playbook.yaml -e "app_string=${string}"
 	"""
+}
+
+def sendEmail(mailTo) {
+    println "send mail to recipients - " + mailTo
+    def strSubject = "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+    def strBody = """<p>FAILED: Job <b>'${env.JOB_NAME} [${env.BUILD_NUMBER}]'</b>:</p>
+        <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>"""
+    emailext body: strBody, subject: strSubject, to: mailTo, mimeType: "text/html"
 }
