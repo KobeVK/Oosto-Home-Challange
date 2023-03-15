@@ -11,14 +11,16 @@
         repo_url: "{{ item.value }}"
       with_dict:
         ingress-nginx: https://kubernetes.github.io/ingress-nginx
+    - name: Install required kubernetes library
+      ansible.builtin.pip:
+        name: kubernetes
     - name: "Create ingress-nginx namespace"
       kubernetes.core.k8s:
         name: "ingress-nginx"
         api_version: v1
         kind: Namespace
         state: present
-        # vars:
-        #   ansible_python_interpreter: /usr/bin/python3
+
     # - name: Create ingress-nginx namespace
     #   kubernetes.core.v1.namespace:
     #     name: ingress-nginx
