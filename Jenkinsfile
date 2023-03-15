@@ -3,14 +3,9 @@
 def ENVIRONMENT = ""
 def buildNumber = env.BUILD_NUMBER as int
 def mailTo = 'skvaknin@gmail.com'
-def stagingIP = "52.47.111.150"
 
 pipeline {
 	agent any
-	parameters {
-		string(name: 'region', defaultValue: 'eu-west-3')
-		
-	}
 
 	environment {
       branch = "${env.GIT_BRANCH}"
@@ -75,12 +70,23 @@ pipeline {
 		}
 
 		stage('verify') {
-            steps {
+			steps {
 				script {
-					sh """
-						ansible-playbook ansible/verification.yaml
-						
-					"""
+					try {
+						test_in_k3s = sh(
+							script: """
+								ansible-playbook ansible/verification.yaml
+							""", returnStdout: true
+						).trim()
+
+						if (test_in_k3s != string_to_print) {
+							throw new Exception("Strings do not match.")
+						}
+					}
+					catch (Exception ex) {
+						echo "**** Deployment Failed, Final string is not correct. ****"
+						sh "exit 1"
+					}
 				}
 			}
 		}
