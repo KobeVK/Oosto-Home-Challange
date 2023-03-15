@@ -22,9 +22,9 @@
           - curl
         update_cache: yes
         force_apt_get: yes
-    - name: Install roles from requirements.yml
-      command: >-
-        ansible-galaxy install -r requirements.yml
+    # - name: Install roles from requirements.yml
+    #   command: >-
+    #     ansible-galaxy install -r requirements.yml
     #Helm installation
     - name: "Add Helm APT signing key"
       ansible.builtin.apt_key:
