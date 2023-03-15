@@ -19,7 +19,7 @@
     #     name: ingress-nginx
     #     state: present
     - name: Create ingress-nginx namespace
-      kubernetes.core.v1.namespace:
+      community.kubernetes.kubernetes.core.v1.namespace:
         name: ingress-nginx
         state: present
       vars:
