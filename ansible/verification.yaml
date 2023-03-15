@@ -1,0 +1,21 @@
+---
+- name: Run Python script in Ansible
+  hosts: all
+  tasks:
+    - name: "Get Endpoints from print-app-service"
+      ansible.builtin.shell: >
+        kubectl describe service print-app-service | grep Endpoints | awk '{print $2}'
+      register: endpoints_output
+
+    - name: Show Endpoints
+      ansible.builtin.debug:
+        var: endpoints_output.stdout
+
+    - name: Run curl command with endpoints_output
+      ansible.builtin.shell: >
+        curl http://{{ endpoints_output.stdout }}/string
+      register: curl_output
+
+    - name: Show curl output
+      ansible.builtin.debug:
+        var: curl_output.stdout

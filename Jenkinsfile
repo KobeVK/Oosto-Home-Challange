@@ -73,9 +73,18 @@ pipeline {
 				}
 			}
 		}
+
+		stage('verify') {
+            steps {
+				script {
+					sh """
+						ansible-playbook ansible/verification.yaml
+					"""
+				}
+			}
+		}
 	}
 }
-
 
 
 def deployExistingEnv() {

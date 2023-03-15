@@ -17,3 +17,5 @@
         state: present
         namespace: default
         wait: yes
+        vars:
+          app_string: "{{ app_string }}"
