@@ -3,9 +3,18 @@
 def ENVIRONMENT = ""
 def buildNumber = env.BUILD_NUMBER as int
 def mailTo = 'skvaknin@gmail.com'
+def stagingIP = '13.39.86.252'
+def string_to_print = 'Hello World! I am a Senior DevOps Engineer candidate @ Oosto!'
+
 
 pipeline {
 	agent any
+	parameters {
+		string(name: 'region', defaultValue: 'eu-west-3')
+		string(name: 'existing_enviornemt', defaultValue: stagingIP)
+		string(name: 'string', defaultValue: string_to_print)
+		
+	}
 
 	environment {
       branch = "${env.GIT_BRANCH}"
@@ -98,6 +107,6 @@ def deployExistingEnv() {
 	sh """
 		echo "Starting Deploying app on "Staging": existing aws instance "
 		echo "This will install k3s cluster, and deploy a webpage behind an nginx on pod, and display string as a massage"
-		ansible-playbook ansible/playbook.yaml -e "app_string=kobkob"
+		ansible-playbook ansible/playbook.yaml -e "app_string=${string_to_print}"
 	"""
 }
