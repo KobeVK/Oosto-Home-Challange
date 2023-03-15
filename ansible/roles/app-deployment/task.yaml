@@ -20,7 +20,7 @@
 
     - name: Generate Kubernetes manifest from template
       ansible.builtin.template:
-        src: pod_template.yaml.j2
+        src: templates/pod_template.yaml.j2
         dest: pod_manifest.yaml
       vars:
         app_string: "{{ app_string }}"
