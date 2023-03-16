@@ -15,18 +15,34 @@ The pipeline can get deploy the infrastructure in two ways, distinguished by a f
 
 ![Oosto web app CI/CD architecture](architecture.png)
 
-# steps I went through to accomplish this task:
+# How to run
+This repo is connected to Jenkins via a webhook, evey push-commit will trigger a pipeline.
+For future-work - I will make it a multi-branch pipeline, so it will deploy feature-branches to one enviorment, and main to "production enviorment" more scalable and reliable.
 
- 1. Designed an high-level architecture of the pipeline
- 2. Designed a deatiled architecture of the pod-service-ingress mechanism
- 1. installing Jenkins 
- 1. install needed plugins --  'Terraform' | 'aws' | 'Ansible' |  'jobDSL' | 'SMTP'
- 1. configured jenkins seed to get repo changes
- 1. install prerequisites on the jenkins instance 
- 1. configures access to all users (default / jenkins) 
- 1. wrote the pipeline DSL / groovy  
- 1. wrote the ansible roles / templates 
- 1. wrote tests to verify i indeed gets the correct string in the pipeline 
- 9 wrote tests to verify i indeed gets the correct string in the pipeline 
- 1. wrote tests to verify i indeed gets the correct string in the pipeline 
- 1. considering security - stricting the aws instance inbound rules, not to expose the ingress to the outside world
+in Jenkins - start building the 'devpoy_env'
+you will be promted with entering the following variables:
+1. 'deploy_new_env'
+   a boolean param (True | False)
+   when set to false = deploy the webapp on an existing ec2 instance, pre-configured
+   when set to true = create a new ec2 instance and deploy the webapp using ansible (not fully supported yet)
+2. 'stagingIP'
+   The IP of the existing enviornemt to deploy the app when deploy_new_env is set to False
+3. 'string_to_print'
+   The purpose of the webapp is to listening on an http port and return a string when called
+   In order to test and verify the CI/CD flow, one can grant the string, so the test will be able to compare what entered and when returned, and notify via email in case the flow is broken.
+4. 'mailTo'
+   an email, or lists of emails to sent to failure notifications to.
+
+The implementation of service-pod-ingress is very effective:
+
+The Service acts as a load balancer.
+
+The pods contain the web app code and any necessary dependencies. They can be scaled horizontally to handle more traffic when needed.
+
+The Ingress is used to expose the web app to external traffic by routing requests to the appropriate Service.
+
+By using this architecture, i found that concers can be separated concerns and decouple the web app from the infrastructure, making it easier to manag.
+in addition, the Service-Pod-Ingress architecture can also provide fault tolerance - as the Service can automatically route traffic to healthy pods in case of a failure.
+
+in addition, I implemnted the solution over a single-node k3s becuase of it's lightweight and Low resource utilization characteristics. 
+Overall, running K3s in a single node can simplify the deployment and management of Kubernetes, reduce resource utilization, and improve performance.
